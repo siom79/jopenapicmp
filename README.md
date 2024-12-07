@@ -7,7 +7,7 @@ an [asyncapi](https://www.asyncapi.com/) specification:
 java -jar target/jopenapicmp-0.0.1-jar-with-dependencies.jar -o old.yaml -n new.yaml
 ```
 
-It can also be used as a library to parse and compare asyncapi specifications:
+It can also be used as a library:
 ```java
 ApiParser parser = new ApiParser();
 OpenApi oldApi = (OpenApi) parser.parse(oldFile, "old.yaml");
@@ -16,10 +16,44 @@ OpenApi newApi = (OpenApi) parser.parse(newFile, "new.yaml");
 ApiComparator comparator = new ApiComparator();
 ObjectDiff objectDiff = comparator.compare(oldApi, newApi);
 ```
-
-There is also a maven plugin available.
-
-The website is located [here](https://siom79.github.io/jopenapicmp/).
+japicmp is available in the Maven Central Repository:
+[![maven](https://img.shields.io/maven-central/v/com.github.siom79.jopenapicmp/jopenapicmp.svg)](https://central.sonatype.com/artifact/com.github.siom79.jopenapicmp/jopenapicmp)
+```xml
+<dependency>
+  <groupId>io.github.siom79.jopenapicmp</groupId>
+  <artifactId>jopenapicmp</artifactId>
+  <version>0.0.1</version>
+</dependency>
+```
+A maven plugin allows you to integrate the checks into your build:
+```xml
+<build>
+	<plugins>
+		<plugin>
+			<groupId>io.github.siom79.jopenapicmp</groupId>
+			<artifactId>jopenapicmp-maven-plugin</artifactId>
+			<version>0.0.1</version>
+			<executions>
+				<execution>
+					<id>cmp</id>
+					<phase>verify</phase>
+					<goals>
+						<goal>jopenapicmp</goal>
+					</goals>
+					<configuration>
+						<oldVersion>
+							<file>old_2.6.0.yaml</file>
+						</oldVersion>
+						<newVersion>
+							<file>new_2.6.0.yaml</file>
+						</newVersion>
+					</configuration>
+				</execution>
+			</executions>
+		</plugin>
+	</plugins>
+</build>
+```
 
 ## Motivation
 
@@ -61,47 +95,6 @@ git clone https://github.com/siom79/jopenapicmp.git
 cd jopenapicmp
 mvn package
 java -jar target/jopenapicmp-0.0.1-jar-with-dependencies.jar -o old.yaml -n new.yaml
-```
-
-You can also use it as a library:
-
-```xml
-<dependency>
-  <groupId>io.github.siom79.jopenapicmp</groupId>
-  <artifactId>jopenapicmp</artifactId>
-  <version>0.0.1</version>
-</dependency>
-```
-
-To integrate the output into your build, you can utilize the maven plugin:
-
-```xml
-<build>
-	<plugins>
-		<plugin>
-			<groupId>io.github.siom79.jopenapicmp</groupId>
-			<artifactId>jopenapicmp-maven-plugin</artifactId>
-			<version>0.0.1</version>
-			<executions>
-				<execution>
-					<id>cmp</id>
-					<phase>verify</phase>
-					<goals>
-						<goal>jopenapicmp</goal>
-					</goals>
-					<configuration>
-						<oldVersion>
-							<file>old_2.6.0.yaml</file>
-						</oldVersion>
-						<newVersion>
-							<file>new_2.6.0.yaml</file>
-						</newVersion>
-					</configuration>
-				</execution>
-			</executions>
-		</plugin>
-	</plugins>
-</build>
 ```
 
 Sample output (old values and incompatibilities are printed as comment):
