@@ -18,7 +18,7 @@ ApiComparator comparator = new ApiComparator();
 ObjectDiff objectDiff = comparator.compare(oldApi, newApi);
 ```
 jopenapicmp is available in the Maven Central Repository:
-[![maven](https://img.shields.io/maven-central/v/com.github.siom79.jopenapicmp/jopenapicmp.svg)](https://central.sonatype.com/artifact/com.github.siom79.jopenapicmp/jopenapicmp)
+[![maven](https://img.shields.io/maven-central/v/com.github.siom79.jopenapicmp/jopenapicmp.svg)](https://central.sonatype.com/artifact/io.github.siom79.jopenapicmp/jopenapicmp)
 ```xml
 <dependency>
   <groupId>io.github.siom79.jopenapicmp</groupId>
