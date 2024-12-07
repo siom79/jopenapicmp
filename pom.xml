@@ -5,7 +5,7 @@
 
     <groupId>io.github.siom79.jopenapicmp</groupId>
     <artifactId>jopenapicmp-base</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>jopenapicmp</name>
@@ -174,6 +174,6 @@
         <connection>scm:git:git://github.com/siom79/jopenapicmp.git</connection>
         <developerConnection>scm:git:https://github.com/siom79/jopenapicmp.git</developerConnection>
         <url>https://github.com/siom79/jopenapicmp/tree/master</url>
-      <tag>jopenapicmp-base-0.0.2</tag>
+      <tag>HEAD</tag>
   </scm>
 </project>

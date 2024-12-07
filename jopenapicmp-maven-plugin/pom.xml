@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>jopenapicmp-base</artifactId>
 		<groupId>io.github.siom79.jopenapicmp</groupId>
-		<version>0.0.2</version>
+		<version>0.0.3-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>jopenapicmp-maven-plugin</artifactId>
