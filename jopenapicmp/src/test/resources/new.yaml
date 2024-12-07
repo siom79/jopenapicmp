@@ -1,0 +1,355 @@
+---
+asyncapi: "2.2.0"
+id: "urn:de:signaliduna:kvletl:sdahealthinsurancebenefittl"
+defaultContentType: "application/json"
+info:
+  title: "KVLETL Sdahealthinsurancebenefittl"
+  description: "Describes the Kafka messages provided by the KVLETL Sdahealthinsurancebenefittl"
+  version: "1.0.0"
+servers:
+  production:
+    url: "si-cluster-kafka-brokers.kafka-cluster-tst.svc.cluster.local"
+    protocol: "kafka"
+    description: "SDA-Plattform Kafka-Cluster"
+channels:
+  sdahealthinsurancebenefit:
+    publish:
+      operationId: "benefit"
+      summary: "Publish a benefit."
+      description: "This channel publishes a benefit to the ODS."
+      message:
+        oneOf:
+          - $ref: "#/components/messages/OdsBenefitMessage"
+          - $ref: "#/components/messages/OdsRecordDeleteByFilterMessage"
+  sdahealthinsurancebilling:
+    publish:
+      operationId: "billing"
+      summary: "Publish an accounting"
+      description: "This channel publishes an accounting to the ODS."
+      message:
+        oneOf:
+          - $ref: "#/components/messages/OdsAccountingMessage"
+components:
+  messages:
+    OdsBenefitMessage:
+      title: "OdsBenefitMessage"
+      description: "This message describes a benefit send to the benefit ODS."
+      payload:
+        $ref: "#/components/schemas/OdsBenefitMessage"
+    OdsRecordDeleteByFilterMessage:
+      title: "OdsRecordDeleteByFilterMessage"
+      description: "This messages deletes benefits by defining filter attributes."
+      payload:
+        $ref: "#/components/schemas/OdsRecordDeleteByFilterMessage"
+    OdsAccountingMessage:
+      title: "OdsAccountingMessage"
+      description: "This message describes an accounting send to the benefit ODS."
+      payload:
+        $ref: "#/components/schemas/OdsAccountingMessage"
+  schemas:
+    Accounting:
+      type: "object"
+      additionalProperties: true
+      properties:
+        id:
+          type: "string"
+        regulationDate:
+          type: "string"
+        regulationNumber:
+          type: "string"
+        letterMark:
+          type: "string"
+        processId:
+          type: "string"
+        submissionId:
+          type: "string"
+        contractId:
+          type: "string"
+        payments:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Payment"
+    Benefit:
+      type: "object"
+      additionalProperties: true
+      properties:
+        id:
+          type: "string"
+        receiptId:
+          type: "string"
+        receiptDate:
+          type: "string"
+        receiptNumber:
+          type: "string"
+        receiptType:
+          $ref: "#/components/schemas/Type"
+        receiptLabel:
+          type: "string"
+        submissionId:
+          type: "string"
+        documentId:
+          type: "string"
+        providerName:
+          type: "string"
+        healthCareProviderId:
+          type: "string"
+        insuredPersonId:
+          type: "string"
+        personId:
+          type: "string"
+        insuranceHolderId:
+          type: "string"
+        receiptAmount:
+          $ref: "#/components/schemas/SdaMoney"
+        status:
+          $ref: "#/components/schemas/Type"
+        created:
+          type: "string"
+        invoiceType:
+          $ref: "#/components/schemas/Type"
+        businessCaseId:
+          type: "string"
+        accountingId:
+          type: "string"
+        contractInfo:
+          $ref: "#/components/schemas/Contract"
+        caseOfBenefits:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/CaseOfBenefit"
+    CalculationBase:
+      type: "object"
+      additionalProperties: true
+      properties:
+        type:
+          $ref: "#/components/schemas/Type"
+        value:
+          $ref: "#/components/schemas/SdaMoney"
+    CaseOfBenefit:
+      type: "object"
+      additionalProperties: true
+      properties:
+        id:
+          type: "string"
+        medicalReceiptPositions:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/MedicalReceiptPosition"
+        treatmentPeriod:
+          $ref: "#/components/schemas/TreatmentPeriod"
+        claim:
+          $ref: "#/components/schemas/Claim"
+        correction:
+          $ref: "#/components/schemas/Correction"
+        invoiceType:
+          $ref: "#/components/schemas/Type"
+        calculationBases:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/CalculationBase"
+        creditOrDebitKinds:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/CreditOrDebitKind"
+        insuranceTariffDetails:
+          $ref: "#/components/schemas/InsuranceTariffDetails"
+        hospitalPerDiemCharge:
+          $ref: "#/components/schemas/HospitalPerDiemCharge"
+        accountedDays:
+          type: "integer"
+        specialMark:
+          type: "string"
+        clinicalFindings:
+          type: "boolean"
+        yearMaximumRate:
+          type: "integer"
+        excess:
+          $ref: "#/components/schemas/SdaMoney"
+        refundedAmount:
+          $ref: "#/components/schemas/SdaMoney"
+        approvedReceiptAmount:
+          $ref: "#/components/schemas/SdaMoney"
+        percentage:
+          type: "number"
+        treatmentInNeed:
+          type: "boolean"
+        householdMark:
+          type: "boolean"
+      required:
+        - "clinicalFindings"
+        - "percentage"
+        - "treatmentInNeed"
+        - "householdMark"
+    Claim:
+      type: "object"
+      additionalProperties: true
+      properties:
+        type:
+          $ref: "#/components/schemas/Type"
+        number:
+          type: "string"
+        reason:
+          type: "string"
+    Contract:
+      type: "object"
+      additionalProperties: true
+      properties:
+        contractId:
+          type: "string"
+        clearingId:
+          type: "string"
+    Correction:
+      type: "object"
+      additionalProperties: true
+      properties:
+        date:
+          type: "string"
+        sequenceNumber:
+          type: "string"
+        reason:
+          type: "string"
+    CreditOrDebitKind:
+      type: "object"
+      additionalProperties: true
+      properties:
+        type:
+          $ref: "#/components/schemas/Type"
+        value:
+          $ref: "#/components/schemas/SdaMoney"
+    Deduction:
+      type: "object"
+      additionalProperties: true
+      properties:
+        type:
+          $ref: "#/components/schemas/Type"
+        betrag:
+          $ref: "#/components/schemas/SdaMoney"
+    HospitalPerDiemCharge:
+      type: "object"
+      additionalProperties: true
+      properties:
+        type:
+          $ref: "#/components/schemas/Type"
+        value:
+          $ref: "#/components/schemas/SdaMoney"
+    InsuranceTariffDetails:
+      type: "object"
+      additionalProperties: true
+      properties:
+        tariffGroup:
+          $ref: "#/components/schemas/Type"
+        benefitServiceTariffKey:
+          $ref: "#/components/schemas/Type"
+        levelName:
+          type: "string"
+        levelNumber:
+          type: "string"
+        contractServiceTariffKey:
+          $ref: "#/components/schemas/Type"
+        contractPageId:
+          type: "string"
+        tariffStart:
+          type: "string"
+        tariffEnd:
+          type: "string"
+    MedicalReceiptPosition:
+      type: "object"
+      additionalProperties: true
+      properties:
+        id:
+          type: "string"
+    OdsAccountingMessage:
+      title: "Ods Accounting Message"
+      type: "object"
+      additionalProperties: true
+      properties:
+        type:
+          type: "string"
+          enum:
+            - "CREATE"
+            - "PATCH"
+            - "DELETE"
+            - "DELETE_BY_PERSON_ID"
+            - "INVALID"
+        value:
+          $ref: "#/components/schemas/Accounting"
+    OdsBenefitMessage:
+      title: "Ods Benefit Message"
+      type: "object"
+      additionalProperties: true
+      properties:
+        type:
+          type: "string"
+          enum:
+            - "CREATE"
+            - "PATCH"
+            - "DELETE"
+            - "DELETE_BY_PERSON_ID"
+            - "INVALID"
+        value:
+          $ref: "#/components/schemas/Benefit"
+    OdsRecordDeleteByFilterMessage:
+      title: "Ods Record Delete By Filter Message"
+      type: "object"
+      additionalProperties: true
+      properties:
+        type:
+          type: "string"
+          enum:
+            - "CREATE"
+            - "PATCH"
+            - "DELETE"
+            - "DELETE_BY_PERSON_ID"
+            - "INVALID"
+        personId:
+          type: "string"
+    Payment:
+      type: "object"
+      additionalProperties: true
+      properties:
+        type:
+          type: "string"
+        id:
+          type: "string"
+        recipientType:
+          $ref: "#/components/schemas/Type"
+        recipientOfPayment:
+          type: "string"
+        subject:
+          type: "string"
+        paymentAmount:
+          $ref: "#/components/schemas/SdaMoney"
+        deductions:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Deduction"
+    SdaMoney:
+      type: "object"
+      additionalProperties: true
+      properties:
+        type:
+          type: "string"
+        unit:
+          type: "string"
+        unitKey:
+          type: "string"
+        value:
+          type: "number"
+    TreatmentPeriod:
+      type: "object"
+      additionalProperties: true
+      properties:
+        from:
+          type: "string"
+        till:
+          type: "string"
+    Type:
+      type: "object"
+      additionalProperties: true
+      properties:
+        key:
+          type: "string"
+        sdaValue:
+          type: "string"
+        sorValue:
+          type: "string"
