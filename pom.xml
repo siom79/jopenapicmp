@@ -173,7 +173,7 @@
 
     <scm>
         <connection>scm:git:git://github.com/siom79/jopenapicmp.git</connection>
-        <developerConnection>scm:git:ssh://github.com:siom79/jopenapicmp.git</developerConnection>
-        <url>http://github.com/siom79/jopenapicmp/tree/master</url>
+        <developerConnection>scm:git:https://github.com/siom79/jopenapicmp.git</developerConnection>
+        <url>https://github.com/siom79/jopenapicmp/tree/master</url>
     </scm>
 </project>
