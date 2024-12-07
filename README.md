@@ -17,7 +17,7 @@ OpenApi newApi = (OpenApi) parser.parse(newFile, "new.yaml");
 ApiComparator comparator = new ApiComparator();
 ObjectDiff objectDiff = comparator.compare(oldApi, newApi);
 ```
-japicmp is available in the Maven Central Repository:
+jopenapicmp is available in the Maven Central Repository:
 [![maven](https://img.shields.io/maven-central/v/com.github.siom79.jopenapicmp/jopenapicmp.svg)](https://central.sonatype.com/artifact/com.github.siom79.jopenapicmp/jopenapicmp)
 ```xml
 <dependency>
@@ -58,7 +58,7 @@ A maven plugin allows you to integrate the checks into your build:
 
 ## Motivation
 
-Every time you release a new version of an API defined by a asyncapi specification,
+Every time you release a new version of an API defined by an OpenApi or asyncapi specification,
 you need to check if only these things have changed that you wanted to change.
 Probably you also have to inform the clients of the API about and changes and want
 to document them.
@@ -196,17 +196,23 @@ Pull requests are welcome, but please follow these rules:
 
 ## Release
 
-This is the current release procedure:
-
+This is the release procedure:
+* Update ReleaseNotes.md.
+* Set the release version in maven:
 ```bash
-./release-prepare.sh <last-released-version> <new-version>
-```
-Run Github Action [Release](https://github.com/siom79/jopenapicmp/actions/workflows/maven-publish-central.yml)
-
-Login to [OSSRH](https://s01.oss.sonatype.org/#stagingRepositories), close and release staging repository
-```bash
-mvn versions:set -DnewVersion=<new-SNAPSHOT-version>
+mvn versions:set -DnewVersion=<version>-SNAPSHOT
 mvn versions:commit
-git add .
-git commit -m "New SNAPSHOT version <new-SNAPSHOT-version>"
 ```
+* Increment version in README.md / Site-Report
+``` bash
+python3 release.py --release-version <release-version> --old-version <old-version>
+```
+* Push changes to remote repository.
+* Run release [Action](https://github.com/siom79/jopenapicmp/actions/workflows/release.yml)
+* Login to [OSSRH](https://s01.oss.sonatype.org/#stagingRepositories)
+    * Download released artifact from staging repository.
+    * Close and release staging repository if sanity checks are successful.
+* Update maven site report with [Action](https://github.com/siom79/jopenapicmp/actions/workflows/mvn-site.yml)
+
+
+

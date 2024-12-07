@@ -1,12 +1,14 @@
 # jopenapicmp
 
-jopenapicmp is a tool to compare two versions of a [asyncapi](https://www.asyncapi.com/) specification:
+jopenapicmp is a tool to compare two versions of an [OpenAPI](https://swagger.io/specification/) or
+an [asyncapi](https://www.asyncapi.com/) specification:
 
 ```bash
 java -jar target/jopenapicmp-0.0.4-jar-with-dependencies.jar -o old.yaml -n new.yaml
 ```
+A read-to-use jar file with all dependencies can be downloaded from the Maven Central Repository [here](https://repo1.maven.org/maven2/io/github/siom79/jopenapicmp/jopenapicmp/0.0.4/jopenapicmp-0.0.4-jar-with-dependencies.jar).
 
-It can also be used as a library to parse and compare asyncapi specifications:
+It can also be used as a library:
 ```java
 AsyncApiParser apiParser = new AsyncApiParser();
 AsyncApi oldAsyncApi = apiParser.parse(oldFile, config.getOldPath());
@@ -15,12 +17,48 @@ AsyncApi newAsyncApi = apiParser.parse(newFile, config.getNewPath());
 AsyncApiComparator comparator = new AsyncApiComparator();
 ObjectDiff diff = comparator.compare(oldAsyncApi, newAsyncApi);
 ```
-
-There is also a maven plugin available.
+jopenapicmp is available in the Maven Central Repository:
+[![maven](https://img.shields.io/maven-central/v/com.github.siom79.jopenapicmp/jopenapicmp.svg)](https://central.sonatype.com/artifact/com.github.siom79.jopenapicmp/jopenapicmp)
+```xml
+<dependency>
+  <groupId>io.github.siom79.jopenapicmp</groupId>
+  <artifactId>jopenapicmp</artifactId>
+  <version>0.0.4</version>
+</dependency>
+```
+A maven plugin allows you to integrate the checks into your build:
+```xml
+<build>
+	<plugins>
+		<plugin>
+			<groupId>io.github.siom79.jopenapicmp</groupId>
+			<artifactId>jopenapicmp-maven-plugin</artifactId>
+			<version>0.0.4</version>
+			<executions>
+				<execution>
+					<id>cmp</id>
+					<phase>verify</phase>
+					<goals>
+						<goal>jopenapicmp</goal>
+					</goals>
+					<configuration>
+						<oldVersion>
+							<file>old_2.6.0.yaml</file>
+						</oldVersion>
+						<newVersion>
+							<file>new_2.6.0.yaml</file>
+						</newVersion>
+					</configuration>
+				</execution>
+			</executions>
+		</plugin>
+	</plugins>
+</build>
+```
 
 ## Motivation
 
-Every time you release a new version of an API defined by a asyncapi specification,
+Every time you release a new version of an API defined by an OpenApi or asyncapi specification,
 you need to check if only these things have changed that you wanted to change.
 Probably you also have to inform the clients of the API about and changes and want
 to document them.
