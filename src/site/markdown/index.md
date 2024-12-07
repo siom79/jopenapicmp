@@ -3,7 +3,7 @@
 jopenapicmp is a tool to compare two versions of a [asyncapi](https://www.asyncapi.com/) specification:
 
 ```bash
-java -jar target/jopenapicmp-0.0.1-jar-with-dependencies.jar -o old.yaml -n new.yaml
+java -jar target/jopenapicmp-0.0.4-jar-with-dependencies.jar -o old.yaml -n new.yaml
 ```
 
 It can also be used as a library to parse and compare asyncapi specifications:
@@ -52,10 +52,10 @@ To use the tool you can clone the repository, build the tool and run it:
 git clone https://github.com/siom79/jopenapicmp.git
 cd jopenapicmp
 mvn package
-java -jar target/jopenapicmp-0.0.1-jar-with-dependencies.jar -o old.yaml -n new.yaml
+java -jar target/jopenapicmp-0.0.4-jar-with-dependencies.jar -o old.yaml -n new.yaml
 ```
 
-A read-to-use jar file with all dependencies can be downloaded from the Maven Central Repository [here](https://repo1.maven.org/maven2/io/github/siom79/jasyncapicmp/jasyncapicmp/0.0.1/jasyncapicmp-0.0.1-jar-with-dependencies.jar).
+A read-to-use jar file with all dependencies can be downloaded from the Maven Central Repository [here](https://repo1.maven.org/maven2/io/github/siom79/jopenapicmp/jopenapicmp/0.0.4/jopenapicmp-0.0.4-jar-with-dependencies.jar).
 Be sure to download the file with the extension `-jar-with-dependencies.jar`.
 
 You can also use it as a library:
@@ -64,7 +64,7 @@ You can also use it as a library:
 <dependency>
   <groupId>io.github.siom79.jopenapicmp</groupId>
   <artifactId>jopenapicmp</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.4</version>
 </dependency>
 ```
 
@@ -76,7 +76,7 @@ To integrate the output into your build, you can utilize the maven plugin:
 		<plugin>
 			<groupId>io.github.siom79.jopenapicmp</groupId>
 			<artifactId>jopenapicmp-maven-plugin</artifactId>
-			<version>0.0.1</version>
+			<version>0.0.4</version>
 			<executions>
 				<execution>
 					<id>cmp</id>

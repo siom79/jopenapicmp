@@ -4,8 +4,9 @@ jopenapicmp is a tool to compare two versions of an [OpenAPI](https://swagger.io
 an [asyncapi](https://www.asyncapi.com/) specification:
 
 ```bash
-java -jar target/jopenapicmp-0.0.1-jar-with-dependencies.jar -o old.yaml -n new.yaml
+java -jar target/jopenapicmp-0.0.4-jar-with-dependencies.jar -o old.yaml -n new.yaml
 ```
+A read-to-use jar file with all dependencies can be downloaded from the Maven Central Repository [here](https://repo1.maven.org/maven2/io/github/siom79/jopenapicmp/jopenapicmp/0.0.4/jopenapicmp-0.0.4-jar-with-dependencies.jar).
 
 It can also be used as a library:
 ```java
@@ -22,7 +23,7 @@ japicmp is available in the Maven Central Repository:
 <dependency>
   <groupId>io.github.siom79.jopenapicmp</groupId>
   <artifactId>jopenapicmp</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.4</version>
 </dependency>
 ```
 A maven plugin allows you to integrate the checks into your build:
@@ -32,7 +33,7 @@ A maven plugin allows you to integrate the checks into your build:
 		<plugin>
 			<groupId>io.github.siom79.jopenapicmp</groupId>
 			<artifactId>jopenapicmp-maven-plugin</artifactId>
-			<version>0.0.1</version>
+			<version>0.0.4</version>
 			<executions>
 				<execution>
 					<id>cmp</id>
@@ -94,7 +95,7 @@ To use the tool you can clone the repository, build the tool and run it:
 git clone https://github.com/siom79/jopenapicmp.git
 cd jopenapicmp
 mvn package
-java -jar target/jopenapicmp-0.0.1-jar-with-dependencies.jar -o old.yaml -n new.yaml
+java -jar target/jopenapicmp-0.0.4-jar-with-dependencies.jar -o old.yaml -n new.yaml
 ```
 
 Sample output (old values and incompatibilities are printed as comment):
