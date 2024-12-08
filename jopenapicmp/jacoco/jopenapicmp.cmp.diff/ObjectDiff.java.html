@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ObjectDiff.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.siom79.jopenapicmp:jopenapicmp</a> &gt; <a href="index.source.html" class="el_package">jopenapicmp.cmp.diff</a> &gt; <span class="el_source">ObjectDiff.java</span></div><h1>ObjectDiff.java</h1><pre class="source lang-java linenums">package jopenapicmp.cmp.diff;
+
+import jopenapicmp.JAsyncApiCmpUserException;
+import jopenapicmp.cmp.ChangeStatus;
+import jopenapicmp.model.Model;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Getter
+<span class="pc" id="L16">@Setter</span>
+<span class="fc" id="L17">@ToString</span>
+public class ObjectDiff implements DiffModel {
+<span class="fc" id="L19">    private Class&lt;? extends Model&gt; type;</span>
+<span class="fc" id="L20">    private Model oldValue;</span>
+<span class="fc" id="L21">    private Model newValue;</span>
+<span class="fc" id="L22">    private ChangeStatus changeStatus = ChangeStatus.UNCHANGED;</span>
+
+<span class="fc" id="L24">    private Map&lt;String, StringDiff&gt; stringDiffs = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L25">    private Map&lt;String, ObjectDiff&gt; objectDiffs = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L26">    private Map&lt;String, MapDiff&gt; mapDiffs = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L27">    private Map&lt;String, ListDiff&gt; listDiffs = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L28">	private Map&lt;String, IntegerDiff&gt; integerDiffs = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L30">    public ObjectDiff(Class&lt;? extends Model&gt; type) {</span>
+<span class="fc" id="L31">        this.type = type;</span>
+<span class="fc" id="L32">    }</span>
+
+    public static ObjectDiff compare(Class&lt;? extends Model&gt; objType, Object oldObj, Object newObj) {
+        try {
+<span class="fc" id="L36">            ObjectDiff objectDiff = new ObjectDiff(objType);</span>
+<span class="fc" id="L37">            objectDiff.setOldValue((Model) oldObj);</span>
+<span class="fc" id="L38">            objectDiff.setNewValue((Model) newObj);</span>
+<span class="pc bpc" id="L39" title="1 of 4 branches missed.">            if (oldObj == null &amp;&amp; newObj == null) {</span>
+<span class="nc" id="L40">                objectDiff.setChangeStatus(ChangeStatus.UNCHANGED);</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">            } else if (oldObj == null) {</span>
+<span class="fc" id="L42">                objectDiff.setChangeStatus(ChangeStatus.ADDED);</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">            } else if (newObj == null) {</span>
+<span class="fc" id="L44">                objectDiff.setChangeStatus(ChangeStatus.REMOVED);</span>
+            } else {
+<span class="fc" id="L46">                Field[] declaredFields = objType.getDeclaredFields();</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">                for (Field field : declaredFields) {</span>
+<span class="fc" id="L48">                    field.setAccessible(true);</span>
+<span class="fc" id="L49">                    Class&lt;?&gt; fieldType = field.getType();</span>
+<span class="fc" id="L50">                    String fieldName = field.getName();</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">                    if (String.class.isAssignableFrom(fieldType)) {</span>
+<span class="fc" id="L52">                        compareString((Model) oldObj, (Model) newObj, objectDiff, field, fieldName);</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">                    } else if (Model.class.isAssignableFrom(fieldType)) {</span>
+<span class="fc" id="L54">                        compareModel(oldObj, newObj, objectDiff, field, fieldType, fieldName);</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">                    } else if (Map.class.isAssignableFrom(fieldType)) {</span>
+<span class="fc" id="L56">                        compareMaps(oldObj, newObj, objectDiff, field, fieldName);</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">                    } else if (List.class.isAssignableFrom(fieldType)) {</span>
+<span class="fc" id="L58">                        compareLists(oldObj, newObj, objectDiff, field, fieldName);</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">                    } else if (int.class.isAssignableFrom(fieldType)) {</span>
+<span class="fc" id="L60">						compareInteger((Model) oldObj, (Model) newObj, objectDiff, field, fieldName);</span>
+					}
+                }
+            }
+<span class="fc" id="L64">            return objectDiff;</span>
+<span class="nc" id="L65">        } catch (IllegalAccessException e) {</span>
+<span class="nc" id="L66">            throw new JAsyncApiCmpUserException(&quot;Failed to access field: &quot; + e.getMessage(), e);</span>
+        }
+    }
+
+    private static void compareLists(Object oldObj, Object newObj, ObjectDiff objectDiff, Field field, String fieldName) throws IllegalAccessException {
+<span class="fc" id="L71">        ListDiff listDiff = ListDiff.compare((List) field.get(oldObj), (List) field.get(newObj));</span>
+<span class="fc" id="L72">        objectDiff.listDiffs.put(fieldName, listDiff);</span>
+<span class="fc" id="L73">    }</span>
+
+    private static void compareMaps(Object oldObj, Object newObj, ObjectDiff objectDiff, Field field, String fieldName) throws IllegalAccessException {
+<span class="fc" id="L76">        MapDiff mapDiff = MapDiff.compare((Map&lt;String, Model&gt;) field.get(oldObj), (Map&lt;String, Model&gt;) field.get(newObj));</span>
+<span class="fc" id="L77">        objectDiff.mapDiffs.put(fieldName, mapDiff);</span>
+<span class="fc" id="L78">    }</span>
+
+    private static void compareModel(Object oldObj, Object newObj, ObjectDiff objectDiff, Field field, Class&lt;?&gt; fieldType, String fieldName) throws IllegalAccessException {
+<span class="fc" id="L81">        Object oldFieldObj = field.get(oldObj);</span>
+<span class="fc" id="L82">        Object newFieldObj = field.get(newObj);</span>
+<span class="fc" id="L83">        ObjectDiff objectDiffField = new ObjectDiff((Class&lt;? extends Model&gt;) fieldType);</span>
+<span class="fc" id="L84">        objectDiffField.setOldValue((Model) oldFieldObj);</span>
+<span class="fc" id="L85">        objectDiffField.setNewValue((Model) newFieldObj);</span>
+<span class="fc bfc" id="L86" title="All 4 branches covered.">        if (oldFieldObj == null &amp;&amp; newFieldObj == null) {</span>
+<span class="fc" id="L87">            objectDiffField.setChangeStatus(ChangeStatus.UNCHANGED);</span>
+<span class="fc" id="L88">            objectDiff.objectDiffs.put(fieldName, objectDiffField);</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        } else if (oldFieldObj == null) {</span>
+<span class="fc" id="L90">            objectDiffField.setChangeStatus(ChangeStatus.ADDED);</span>
+<span class="fc" id="L91">            objectDiff.objectDiffs.put(fieldName, objectDiffField);</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        } else if (newFieldObj == null) {</span>
+<span class="fc" id="L93">            objectDiffField.setChangeStatus(ChangeStatus.REMOVED);</span>
+<span class="fc" id="L94">            objectDiff.objectDiffs.put(fieldName, objectDiffField);</span>
+        } else {
+<span class="fc" id="L96">            ObjectDiff fieldDiff = ObjectDiff.compare((Class&lt;Model&gt;) fieldType, oldFieldObj, newFieldObj);</span>
+<span class="fc" id="L97">            objectDiff.objectDiffs.put(fieldName, fieldDiff);</span>
+        }
+<span class="fc" id="L99">    }</span>
+
+    private static void compareString(Model oldObj, Model newObj, ObjectDiff objectDiff, Field field, String fieldName) throws IllegalAccessException {
+<span class="fc" id="L102">        String oldFieldValue = (String) field.get(oldObj);</span>
+<span class="fc" id="L103">        String newFieldValue = (String) field.get(newObj);</span>
+<span class="fc" id="L104">        StringDiff stringDiff = StringDiff.compare(oldObj, newObj, oldFieldValue, newFieldValue);</span>
+<span class="fc" id="L105">        objectDiff.stringDiffs.put(fieldName, stringDiff);</span>
+<span class="fc" id="L106">    }</span>
+
+	private static void compareInteger(Model oldObj, Model newObj, ObjectDiff objectDiff, Field field, String fieldName) throws IllegalAccessException {
+<span class="fc" id="L109">		Integer oldFieldValue = (Integer) field.get(oldObj);</span>
+<span class="fc" id="L110">		Integer newFieldValue = (Integer) field.get(newObj);</span>
+<span class="fc" id="L111">		IntegerDiff integerDiff = IntegerDiff.compare(oldObj, newObj, oldFieldValue, newFieldValue);</span>
+<span class="fc" id="L112">		objectDiff.integerDiffs.put(fieldName, integerDiff);</span>
+<span class="fc" id="L113">	}</span>
+
+    public boolean isNull() {
+<span class="fc bfc" id="L116" title="All 4 branches covered.">        return oldValue == null &amp;&amp; newValue == null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

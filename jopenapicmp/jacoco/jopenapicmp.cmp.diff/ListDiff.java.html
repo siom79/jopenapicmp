@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ListDiff.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.siom79.jopenapicmp:jopenapicmp</a> &gt; <a href="index.source.html" class="el_package">jopenapicmp.cmp.diff</a> &gt; <span class="el_source">ListDiff.java</span></div><h1>ListDiff.java</h1><pre class="source lang-java linenums">package jopenapicmp.cmp.diff;
+
+import jopenapicmp.JAsyncApiCmpTechnicalException;
+import jopenapicmp.cmp.ApiCompatibilityChange;
+import jopenapicmp.cmp.ChangeStatus;
+import jopenapicmp.cmp.compat.HasCompatibilityChanges;
+import jopenapicmp.model.Model;
+import jopenapicmp.model.asyncapi.ListId;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+<span class="pc" id="L18">@Setter</span>
+<span class="fc" id="L19">@ToString</span>
+<span class="fc" id="L20">public class ListDiff implements DiffModel {</span>
+<span class="fc" id="L21">    private List oldValue;</span>
+<span class="fc" id="L22">    private List newValue;</span>
+<span class="fc" id="L23">    private ChangeStatus changeStatus = ChangeStatus.UNCHANGED;</span>
+<span class="fc" id="L24">    private List&lt;ListDiffEntry&lt;?&gt;&gt; listDiffsEntries = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L26">    public enum ListDiffEntryType {</span>
+<span class="fc" id="L27">        STRING,</span>
+<span class="fc" id="L28">        MODEL</span>
+    }
+
+    @Getter
+<span class="pc" id="L32">    @Setter</span>
+<span class="nc" id="L33">    @ToString</span>
+<span class="fc" id="L34">    public static class ListDiffEntry&lt;T&gt; implements DiffModel, HasCompatibilityChanges {</span>
+<span class="fc" id="L35">        ListDiffEntryType type;</span>
+<span class="nc" id="L36">        private T oldValue;</span>
+<span class="fc" id="L37">        private T newValue;</span>
+<span class="fc" id="L38">        private ChangeStatus changeStatus = ChangeStatus.UNCHANGED;</span>
+<span class="fc" id="L39">        private ObjectDiff objectDiff;</span>
+<span class="fc" id="L40">		private List&lt;ApiCompatibilityChange&gt; apiCompatibilityChanges = new ArrayList&lt;&gt;();</span>
+
+		public void addCompatibilityChange(ApiCompatibilityChange apiCompatibilityChange) {
+<span class="fc" id="L43">			this.apiCompatibilityChanges.add(apiCompatibilityChange);</span>
+<span class="fc" id="L44">		}</span>
+    }
+
+
+    public static ListDiff compare(List oldValue, List newValue) {
+<span class="fc" id="L49">        ListDiff listDiff = new ListDiff();</span>
+<span class="fc" id="L50">        listDiff.setOldValue(oldValue);</span>
+<span class="fc" id="L51">        listDiff.setNewValue(newValue);</span>
+<span class="pc bpc" id="L52" title="1 of 4 branches missed.">        if (oldValue == null &amp;&amp; newValue == null) {</span>
+<span class="fc" id="L53">            listDiff.setChangeStatus(ChangeStatus.UNCHANGED);</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">        } else if (oldValue == null) {</span>
+<span class="nc" id="L55">            listDiff.setChangeStatus(ChangeStatus.ADDED);</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        } else if (newValue == null) {</span>
+<span class="nc" id="L57">            listDiff.setChangeStatus(ChangeStatus.REMOVED);</span>
+        } else {
+<span class="fc bfc" id="L59" title="All 4 branches covered.">            if (oldValue.isEmpty() &amp;&amp; newValue.isEmpty()) {</span>
+<span class="fc" id="L60">                listDiff.setChangeStatus(ChangeStatus.UNCHANGED);</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">            } else if (oldValue.isEmpty()) {</span>
+<span class="fc" id="L62">                compareListOneEmpty(newValue, ChangeStatus.ADDED, listDiff);</span>
+<span class="fc" id="L63">                listDiff.setChangeStatus(ChangeStatus.ADDED);</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">            } else if (newValue.isEmpty()) {</span>
+<span class="nc" id="L65">                compareListOneEmpty(oldValue, ChangeStatus.REMOVED, listDiff);</span>
+<span class="nc" id="L66">                listDiff.setChangeStatus(ChangeStatus.REMOVED);</span>
+            } else {
+<span class="fc" id="L68">                compareLists(oldValue, newValue, listDiff);</span>
+<span class="fc" id="L69">                listDiff.setChangeStatus(ChangeStatus.UNCHANGED);</span>
+            }
+        }
+<span class="fc" id="L72">        return listDiff;</span>
+    }
+
+    private static void compareLists(List oldList, List newList, ListDiff listDiff) {
+<span class="fc" id="L76">        Object v = oldList.get(0);</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (v instanceof String) {</span>
+<span class="fc" id="L78">            compareListsString(oldList, newList, listDiff);</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        } else if (v instanceof Model) {</span>
+<span class="fc" id="L80">            compareListsModel(oldList, newList, listDiff);</span>
+        }
+<span class="fc" id="L82">    }</span>
+
+    private static void compareListsModel(List oldList, List newList, ListDiff listDiff) {
+        try {
+<span class="fc" id="L86">            Field idField = getIdField(oldList.get(0).getClass(), oldList, newList);</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">            if (idField != null) {</span>
+<span class="fc" id="L88">                List&lt;Model&gt; processedNew = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">                for (Object o : oldList) {</span>
+<span class="fc" id="L90">                    Object idFieldValueOld = idField.get(o);</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">                    if (idFieldValueOld != null) {</span>
+<span class="fc" id="L92">                        Object foundInNew = null;</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">                        for (Object n : newList) {</span>
+<span class="fc" id="L94">                            Object idFieldValueNew = idField.get(n);</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">                            if (idFieldValueNew != null) {</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">                                if (idFieldValueNew.equals(idFieldValueOld)) {</span>
+<span class="fc" id="L97">                                    foundInNew = n;</span>
+<span class="fc" id="L98">                                    break;</span>
+                                }
+                            }
+<span class="fc" id="L101">                        }</span>
+<span class="fc" id="L102">                        ListDiffEntry&lt;Model&gt; listDiffEntry = new ListDiffEntry&lt;&gt;();</span>
+<span class="fc" id="L103">                        listDiffEntry.setType(ListDiffEntryType.MODEL);</span>
+<span class="fc" id="L104">                        listDiffEntry.setOldValue((Model) o);</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">                        if (foundInNew != null) {</span>
+<span class="fc" id="L106">                            listDiffEntry.setNewValue((Model) o);</span>
+<span class="fc" id="L107">                            listDiffEntry.setObjectDiff(ObjectDiff.compare((Class&lt;? extends Model&gt;) o.getClass(), o, foundInNew));</span>
+<span class="fc" id="L108">                            processedNew.add((Model) foundInNew);</span>
+                        } else {
+<span class="fc" id="L110">                            listDiffEntry.setObjectDiff(ObjectDiff.compare((Class&lt;? extends Model&gt;) o.getClass(), o, null));</span>
+<span class="fc" id="L111">                            listDiffEntry.setChangeStatus(ChangeStatus.REMOVED);</span>
+                        }
+<span class="fc" id="L113">                        listDiff.listDiffsEntries.add(listDiffEntry);</span>
+<span class="fc" id="L114">                    } else {</span>
+<span class="fc" id="L115">                        ListDiffEntry&lt;Model&gt; listDiffEntry = new ListDiffEntry&lt;&gt;();</span>
+<span class="fc" id="L116">                        listDiffEntry.setType(ListDiffEntryType.MODEL);</span>
+<span class="fc" id="L117">                        listDiffEntry.setOldValue((Model) o);</span>
+<span class="fc" id="L118">                        listDiffEntry.setObjectDiff(ObjectDiff.compare((Class&lt;? extends Model&gt;) o.getClass(), o, null));</span>
+<span class="fc" id="L119">                        listDiffEntry.setChangeStatus(ChangeStatus.REMOVED);</span>
+<span class="fc" id="L120">                        listDiff.listDiffsEntries.add(listDiffEntry);</span>
+                    }
+<span class="fc" id="L122">                }</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">                for (Object n : newList) {</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">                    if (processedNew.stream().anyMatch(pn -&gt; {</span>
+                        try {
+<span class="pc bpc" id="L126" title="1 of 4 branches missed.">                            return idField.get(pn) != null &amp;&amp; idField.get(pn).equals(idField.get(n));</span>
+<span class="nc" id="L127">                        } catch (IllegalAccessException e) {</span>
+<span class="nc" id="L128">                            throw new JAsyncApiCmpTechnicalException(&quot;Unable to access field: &quot; + e.getMessage(), e);</span>
+                        }
+                    })) {
+<span class="fc" id="L131">                        continue;</span>
+                    }
+<span class="fc" id="L133">                    ListDiffEntry&lt;Model&gt; listDiffEntry = new ListDiffEntry&lt;&gt;();</span>
+<span class="fc" id="L134">                    listDiffEntry.setType(ListDiffEntryType.MODEL);</span>
+<span class="fc" id="L135">                    listDiffEntry.setNewValue((Model) n);</span>
+<span class="fc" id="L136">                    listDiffEntry.setObjectDiff(ObjectDiff.compare((Class&lt;? extends Model&gt;) n.getClass(), null, n));</span>
+<span class="fc" id="L137">                    listDiffEntry.setChangeStatus(ChangeStatus.ADDED);</span>
+<span class="fc" id="L138">                    listDiff.listDiffsEntries.add(listDiffEntry);</span>
+<span class="fc" id="L139">                }</span>
+            }
+<span class="nc" id="L141">        } catch (IllegalAccessException e) {</span>
+<span class="nc" id="L142">            throw new JAsyncApiCmpTechnicalException(&quot;Unable to access field: &quot; + e.getMessage(), e);</span>
+<span class="fc" id="L143">        }</span>
+<span class="fc" id="L144">    }</span>
+
+    private static Field getIdField(Class&lt;?&gt; aClass, List oldList, List newList) {
+<span class="fc" id="L147">        Field[] declaredFields = aClass.getDeclaredFields();</span>
+<span class="fc" id="L148">		Field idField = null;</span>
+<span class="fc" id="L149">		Field nameField = null;</span>
+<span class="fc" id="L150">		Field titleField = null;</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        for (Field field : declaredFields) {</span>
+<span class="fc" id="L152">            ListId annotation = field.getAnnotation(ListId.class);</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">            if (annotation != null) {</span>
+<span class="fc" id="L154">				idField = field;</span>
+<span class="fc" id="L155">                field.setAccessible(true);</span>
+            }
+<span class="fc bfc" id="L157" title="All 2 branches covered.">			if (&quot;name&quot;.equals(field.getName())) {</span>
+<span class="fc" id="L158">				field.setAccessible(true);</span>
+<span class="fc" id="L159">				nameField = field;</span>
+			}
+<span class="fc bfc" id="L161" title="All 2 branches covered.">			if (&quot;title&quot;.equals(field.getName())) {</span>
+<span class="fc" id="L162">				field.setAccessible(true);</span>
+<span class="fc" id="L163">				titleField = field;</span>
+			}
+        }
+<span class="pc bpc" id="L166" title="1 of 4 branches missed.">		if (idField != null &amp;&amp; hasFieldValue(idField, newList)) {</span>
+<span class="fc" id="L167">			return idField;</span>
+		}
+<span class="pc bpc" id="L169" title="1 of 4 branches missed.">		if (nameField != null &amp;&amp; hasFieldValue(nameField, newList)) {</span>
+<span class="nc" id="L170">			return nameField;</span>
+		}
+<span class="fc" id="L172">		return titleField;</span>
+	}
+
+	private static boolean hasFieldValue(Field field, List list) {
+<span class="fc" id="L176">		return list.stream().anyMatch(o -&gt; {</span>
+			try {
+<span class="fc bfc" id="L178" title="All 2 branches covered.">				return field.get(o) != null;</span>
+<span class="nc" id="L179">			} catch (IllegalAccessException e) {</span>
+<span class="nc" id="L180">				return false;</span>
+			}
+		});
+	}
+
+    private static void compareListsString(List oldList, List newList, ListDiff listDiff) {
+<span class="fc" id="L186">        List&lt;String&gt; processedNew = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">        for (Object o : oldList) {</span>
+<span class="fc" id="L188">            boolean foundInNew = false;</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">            for (Object n : newList) {</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">                if (n.equals(o)) {</span>
+<span class="fc" id="L191">                    foundInNew = true;</span>
+<span class="fc" id="L192">                    break;</span>
+                }
+<span class="fc" id="L194">            }</span>
+<span class="fc" id="L195">            ListDiffEntry&lt;String&gt; listDiffEntry = new ListDiffEntry&lt;&gt;();</span>
+<span class="fc" id="L196">            listDiffEntry.setType(ListDiffEntryType.STRING);</span>
+<span class="fc" id="L197">            listDiffEntry.setOldValue((String) o);</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">            if (foundInNew) {</span>
+<span class="fc" id="L199">                listDiffEntry.setNewValue((String) o);</span>
+<span class="fc" id="L200">                listDiffEntry.setChangeStatus(ChangeStatus.UNCHANGED);</span>
+<span class="fc" id="L201">                processedNew.add((String) o);</span>
+            } else {
+<span class="fc" id="L203">                listDiffEntry.setChangeStatus(ChangeStatus.REMOVED);</span>
+            }
+<span class="fc" id="L205">            listDiff.listDiffsEntries.add(listDiffEntry);</span>
+<span class="fc" id="L206">        }</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">        for (Object n : newList) {</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">            if (processedNew.contains(n)) {</span>
+<span class="fc" id="L209">                continue;</span>
+            }
+<span class="fc" id="L211">            ListDiffEntry&lt;String&gt; listDiffEntry = new ListDiffEntry&lt;&gt;();</span>
+<span class="fc" id="L212">            listDiffEntry.setType(ListDiffEntryType.STRING);</span>
+<span class="fc" id="L213">            listDiffEntry.setNewValue((String) n);</span>
+<span class="fc" id="L214">            listDiffEntry.setChangeStatus(ChangeStatus.ADDED);</span>
+<span class="fc" id="L215">            listDiff.listDiffsEntries.add(listDiffEntry);</span>
+<span class="fc" id="L216">        }</span>
+<span class="fc" id="L217">    }</span>
+
+    private static void compareListOneEmpty(List list, ChangeStatus changeStatus, ListDiff listDiff) {
+<span class="fc" id="L220">        Object v = list.get(0);</span>
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">        if (v instanceof String) {</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">            for (Object o : list) {</span>
+<span class="nc" id="L223">                ListDiffEntry&lt;String&gt; listDiffEntry = new ListDiffEntry&lt;&gt;();</span>
+<span class="nc" id="L224">                listDiffEntry.setType(ListDiffEntryType.STRING);</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">                if (changeStatus == ChangeStatus.ADDED) {</span>
+<span class="nc" id="L226">                    listDiffEntry.setNewValue((String) o);</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">                } else if (changeStatus == ChangeStatus.REMOVED) {</span>
+<span class="nc" id="L228">                    listDiffEntry.setOldValue((String) o);</span>
+                }
+<span class="nc" id="L230">                listDiffEntry.setChangeStatus(changeStatus);</span>
+<span class="nc" id="L231">                listDiff.listDiffsEntries.add(listDiffEntry);</span>
+<span class="nc" id="L232">            }</span>
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">        } else if (v instanceof Model) {</span>
+<span class="fc bfc" id="L234" title="All 2 branches covered.">            for (Object o : list) {</span>
+<span class="fc" id="L235">                ListDiffEntry&lt;Model&gt; listDiffEntry = new ListDiffEntry&lt;&gt;();</span>
+<span class="fc" id="L236">                listDiffEntry.setType(ListDiffEntryType.MODEL);</span>
+<span class="pc bpc" id="L237" title="1 of 2 branches missed.">                if (changeStatus == ChangeStatus.ADDED) {</span>
+<span class="fc" id="L238">                    listDiffEntry.setNewValue((Model) o);</span>
+<span class="fc" id="L239">                    listDiffEntry.setObjectDiff(ObjectDiff.compare((Class&lt;? extends Model&gt;) o.getClass(), null, o));</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">                } else if (changeStatus == ChangeStatus.REMOVED) {</span>
+<span class="nc" id="L241">                    listDiffEntry.setOldValue((Model) o);</span>
+<span class="nc" id="L242">                    listDiffEntry.setObjectDiff(ObjectDiff.compare((Class&lt;? extends Model&gt;) o.getClass(), o, null));</span>
+                }
+<span class="fc" id="L244">                listDiffEntry.setChangeStatus(changeStatus);</span>
+<span class="fc" id="L245">                listDiff.listDiffsEntries.add(listDiffEntry);</span>
+<span class="fc" id="L246">            }</span>
+        }
+<span class="fc" id="L248">    }</span>
+
+    public boolean isEmpty() {
+<span class="fc" id="L251">        return this.listDiffsEntries.isEmpty();</span>
+    }
+
+	public ListDiffEntry&lt;String&gt; getListDiffEntryByName(String name) {
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">		for (ListDiffEntry&lt;?&gt; listDiffEntry : this.listDiffsEntries) {</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">			if (listDiffEntry.getType() == ListDiffEntryType.STRING) {</span>
+<span class="fc" id="L257">				ListDiffEntry&lt;String&gt; listDiffEntryStr = (ListDiffEntry&lt;String&gt;) listDiffEntry;</span>
+<span class="fc bfc" id="L258" title="All 4 branches covered.">				if (name.equals(listDiffEntryStr.newValue) || name.equals(listDiffEntryStr.oldValue)) {</span>
+<span class="fc" id="L259">					return listDiffEntryStr;</span>
+				}
+			}
+<span class="fc" id="L262">		}</span>
+<span class="nc" id="L263">		return null;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

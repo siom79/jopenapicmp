@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IntegerDiff.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.siom79.jopenapicmp:jopenapicmp</a> &gt; <a href="index.source.html" class="el_package">jopenapicmp.cmp.diff</a> &gt; <span class="el_source">IntegerDiff.java</span></div><h1>IntegerDiff.java</h1><pre class="source lang-java linenums">package jopenapicmp.cmp.diff;
+
+import jopenapicmp.cmp.ApiCompatibilityChange;
+import jopenapicmp.cmp.ChangeStatus;
+import jopenapicmp.cmp.compat.HasCompatibilityChanges;
+import jopenapicmp.model.Model;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+<span class="pc" id="L15">@Setter</span>
+<span class="nc" id="L16">@ToString</span>
+<span class="fc" id="L17">public class IntegerDiff implements DiffModel, HasCompatibilityChanges {</span>
+<span class="nc" id="L18">	private Model oldModel;</span>
+<span class="nc" id="L19">	private Model newModel;</span>
+<span class="fc" id="L20">	private Integer oldValue;</span>
+<span class="fc" id="L21">	private Integer newValue;</span>
+<span class="fc" id="L22">	private ChangeStatus changeStatus = ChangeStatus.UNCHANGED;</span>
+<span class="fc" id="L23">	private List&lt;ApiCompatibilityChange&gt; apiCompatibilityChanges = new ArrayList&lt;&gt;();</span>
+
+	public static IntegerDiff compare(Model oldModel, Model newModel, Integer oldValue, Integer newValue) {
+<span class="fc" id="L26">		IntegerDiff integerDiff = new IntegerDiff();</span>
+<span class="fc" id="L27">		integerDiff.setOldModel(oldModel);</span>
+<span class="fc" id="L28">		integerDiff.setNewModel(newModel);</span>
+<span class="fc" id="L29">		integerDiff.setOldValue(oldValue);</span>
+<span class="fc" id="L30">		integerDiff.setNewValue(newValue);</span>
+<span class="pc bpc" id="L31" title="3 of 4 branches missed.">		if (oldValue == null &amp;&amp; newValue == null) {</span>
+<span class="nc" id="L32">			integerDiff.setChangeStatus(ChangeStatus.UNCHANGED);</span>
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">		} else if (oldValue == null) {</span>
+<span class="nc" id="L34">			integerDiff.setChangeStatus(ChangeStatus.ADDED);</span>
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">		} else if (newValue == null) {</span>
+<span class="nc" id="L36">			integerDiff.setChangeStatus(ChangeStatus.REMOVED);</span>
+		} else {
+<span class="fc bfc" id="L38" title="All 2 branches covered.">			if (oldValue.equals(newValue)) {</span>
+<span class="fc" id="L39">				integerDiff.setChangeStatus(ChangeStatus.UNCHANGED);</span>
+			} else {
+<span class="fc" id="L41">				integerDiff.setChangeStatus(ChangeStatus.CHANGED);</span>
+			}
+		}
+<span class="fc" id="L44">		return integerDiff;</span>
+	}
+
+	public boolean isNull() {
+<span class="nc bnc" id="L48" title="All 4 branches missed.">		return oldValue == null &amp;&amp; newValue == null;</span>
+	}
+
+	public void addCompatibilityChange(ApiCompatibilityChange apiCompatibilityChange) {
+<span class="fc" id="L52">		this.apiCompatibilityChanges.add(apiCompatibilityChange);</span>
+<span class="fc" id="L53">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CliParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.siom79.jopenapicmp:jopenapicmp</a> &gt; <a href="index.source.html" class="el_package">jopenapicmp.cli</a> &gt; <span class="el_source">CliParser.java</span></div><h1>CliParser.java</h1><pre class="source lang-java linenums">package jopenapicmp.cli;
+
+import jopenapicmp.JAsyncApiCmpUserException;
+import jopenapicmp.config.Config;
+
+import java.util.Stack;
+
+<span class="fc" id="L8">public class CliParser {</span>
+
+    public Config parse(String[] args) {
+<span class="fc" id="L11">        Config config = new Config();</span>
+<span class="fc" id="L12">        Stack&lt;String&gt; argStack = toStack(args);</span>
+<span class="fc bfc" id="L13" title="All 2 branches covered.">        while (!argStack.empty()) {</span>
+<span class="fc" id="L14">            String arg = argStack.pop();</span>
+<span class="fc bfc" id="L15" title="All 4 branches covered.">            if (&quot;-o&quot;.equals(arg) || &quot;--old&quot;.equals(arg)) {</span>
+<span class="fc bfc" id="L16" title="All 2 branches covered.">                if (argStack.isEmpty()) {</span>
+<span class="fc" id="L17">                    throw new JAsyncApiCmpUserException(&quot;Missing argument for option -o/--old.&quot;);</span>
+                }
+<span class="fc" id="L19">                String pop = argStack.pop();</span>
+<span class="fc bfc" id="L20" title="All 2 branches covered.">                if (pop.startsWith(&quot;-&quot;)) {</span>
+<span class="fc" id="L21">                    throw new JAsyncApiCmpUserException(&quot;Missing argument for option -o/--old.&quot;);</span>
+                }
+<span class="fc" id="L23">                config.setOldPath(pop);</span>
+            }
+<span class="fc bfc" id="L25" title="All 4 branches covered.">            if (&quot;-n&quot;.equals(arg) || &quot;--new&quot;.equals(arg)) {</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">                if (argStack.isEmpty()) {</span>
+<span class="fc" id="L27">                    throw new JAsyncApiCmpUserException(&quot;Missing argument for option -n/--new.&quot;);</span>
+                }
+<span class="fc" id="L29">                String pop = argStack.pop();</span>
+<span class="fc bfc" id="L30" title="All 2 branches covered.">                if (pop.startsWith(&quot;-&quot;)) {</span>
+<span class="fc" id="L31">                    throw new JAsyncApiCmpUserException(&quot;Missing argument for option -n/--new.&quot;);</span>
+                }
+<span class="fc" id="L33">                config.setNewPath(pop);</span>
+            }
+<span class="pc bpc" id="L35" title="2 of 4 branches missed.">            if (&quot;-h&quot;.equals(arg) || &quot;--help&quot;.equals(arg)) {</span>
+<span class="nc" id="L36">                String message = &quot;Usage: [-o &lt;path&gt; | --old &lt;path&gt;] [-n &lt;path&gt; | --new &lt;path&gt;]&quot;;</span>
+<span class="nc" id="L37">                throw new JAsyncApiCmpUserException(message);</span>
+            }
+<span class="fc" id="L39">        }</span>
+<span class="fc" id="L40">        return config;</span>
+    }
+
+    private static Stack&lt;String&gt; toStack(String[] args) {
+<span class="fc" id="L44">        Stack&lt;String&gt; argStack = new Stack&lt;&gt;();</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        for (int i = args.length - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L46">            argStack.push(args[i]);</span>
+        }
+<span class="fc" id="L48">        return argStack;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

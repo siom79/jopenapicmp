@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApiParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.siom79.jopenapicmp:jopenapicmp</a> &gt; <a href="index.source.html" class="el_package">jopenapicmp.parser</a> &gt; <span class="el_source">ApiParser.java</span></div><h1>ApiParser.java</h1><pre class="source lang-java linenums">package jopenapicmp.parser;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import jopenapicmp.JAsyncApiCmpUserException;
+import jopenapicmp.model.Api;
+import jopenapicmp.model.asyncapi.AsyncApi;
+import jopenapicmp.model.openapi.OpenApi;
+
+<span class="fc" id="L13">public class ApiParser {</span>
+
+<span class="fc" id="L15">    private enum Format {</span>
+<span class="fc" id="L16">        JSON, YAML</span>
+    }
+
+    public Api parse(byte[] file, String filePath) {
+<span class="fc" id="L20">        Format format = detectFormat(file);</span>
+		Api api;
+<span class="fc bfc" id="L22" title="All 2 branches covered.">        if (format == Format.JSON) {</span>
+<span class="fc" id="L23">			api = parseJson(file, filePath);</span>
+        } else {
+<span class="fc" id="L25">			api = parseYaml(file, filePath);</span>
+        }
+<span class="fc" id="L27">        return api;</span>
+    }
+
+	private Class&lt;? extends Api&gt; detectType(JsonNode rootNode) {
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">		if (rootNode.isObject()) {</span>
+<span class="fc" id="L32">			ObjectNode objectNode = (ObjectNode) rootNode;</span>
+<span class="fc" id="L33">			JsonNode value = objectNode.findValue(&quot;asyncapi&quot;);</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">			if (value != null) {</span>
+<span class="fc" id="L35">				return AsyncApi.class;</span>
+			}
+<span class="fc" id="L37">			value = objectNode.findValue(&quot;openapi&quot;);</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">			if (value != null) {</span>
+<span class="fc" id="L39">				return OpenApi.class;</span>
+			}
+		}
+<span class="nc" id="L42">		throw new JAsyncApiCmpUserException(&quot;Could not detect ASyncApi or OpenApi format: missing top-level property &quot; +</span>
+			&quot;'asyncapi' or 'openapi'.&quot;);
+	}
+
+	Api parseYaml(byte[] file, String filePath) {
+<span class="fc" id="L47">        ObjectMapper mapper = new YAMLMapper();</span>
+<span class="fc" id="L48">        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);</span>
+        try {
+<span class="fc" id="L50">            JsonNode jsonNode = mapper.readTree(file);</span>
+<span class="fc" id="L51">            ReferenceResolver resolver = new ReferenceResolver();</span>
+<span class="fc" id="L52">            resolver.resolveRefs(jsonNode);</span>
+<span class="fc" id="L53">            return mapper.treeToValue(jsonNode, detectType(jsonNode));</span>
+<span class="fc" id="L54">        } catch (Exception e) {</span>
+<span class="fc" id="L55">            throw new JAsyncApiCmpUserException(&quot;Failed to parse YAML (&quot; + filePath + &quot;): &quot; + e.getMessage(), e);</span>
+        }
+    }
+
+	Api parseJson(byte[] file, String filePath) {
+<span class="fc" id="L60">        ObjectMapper mapper = new ObjectMapper();</span>
+<span class="fc" id="L61">        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);</span>
+        try {
+<span class="fc" id="L63">            JsonNode jsonNode = mapper.readTree(file);</span>
+<span class="fc" id="L64">            ReferenceResolver resolver = new ReferenceResolver();</span>
+<span class="fc" id="L65">            resolver.resolveRefs(jsonNode);</span>
+<span class="fc" id="L66">            return mapper.treeToValue(jsonNode, detectType(jsonNode));</span>
+<span class="fc" id="L67">        } catch (Exception e) {</span>
+<span class="fc" id="L68">            throw new JAsyncApiCmpUserException(&quot;Failed to parse JSON (&quot; + filePath + &quot;): &quot; + e.getMessage(), e);</span>
+        }
+    }
+
+    private Format detectFormat(byte[] file) {
+<span class="pc bfc" id="L73" title="All 2 branches covered.">        for (byte b : file) {</span>
+<span class="fc" id="L74">            char c = (char) b;</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">            if (!Character.isWhitespace(c)) {</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">                if (c == '{') {</span>
+<span class="fc" id="L77">                    return Format.JSON;</span>
+                } else {
+<span class="fc" id="L79">                    return Format.YAML;</span>
+                }
+            }
+        }
+<span class="fc" id="L83">        throw new JAsyncApiCmpUserException(&quot;Could not detect YAML or JSON format.&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SchemaCompatibilityCheck.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.siom79.jopenapicmp:jopenapicmp</a> &gt; <a href="index.source.html" class="el_package">jopenapicmp.cmp.compat</a> &gt; <span class="el_source">SchemaCompatibilityCheck.java</span></div><h1>SchemaCompatibilityCheck.java</h1><pre class="source lang-java linenums">package jopenapicmp.cmp.compat;
+
+import jopenapicmp.cmp.ApiCompatibilityChange;
+import jopenapicmp.cmp.ChangeStatus;
+import jopenapicmp.cmp.diff.*;
+
+import java.util.Map;
+
+<span class="nc" id="L9">public class SchemaCompatibilityCheck {</span>
+
+	public static void check(ObjectDiff schemaDiff) {
+<span class="fc" id="L12">		checkType(schemaDiff);</span>
+<span class="fc" id="L13">		checkProperties(schemaDiff);</span>
+<span class="fc" id="L14">		checkRequired(schemaDiff);</span>
+<span class="fc" id="L15">		checkMinLength(schemaDiff);</span>
+<span class="fc" id="L16">		checkMaxLength(schemaDiff);</span>
+<span class="fc" id="L17">	}</span>
+
+	private static void checkRequired(ObjectDiff schemaDiff) {
+<span class="fc" id="L20">		ListDiff requiredDiff = schemaDiff.getListDiffs().get(&quot;required&quot;);</span>
+<span class="fc bfc" id="L21" title="All 2 branches covered.">		if (requiredDiff != null) {</span>
+<span class="fc bfc" id="L22" title="All 2 branches covered.">			for (ListDiff.ListDiffEntry&lt;?&gt; listDiffEntry : requiredDiff.getListDiffsEntries()) {</span>
+<span class="fc" id="L23">				ChangeStatus changeStatus = listDiffEntry.getChangeStatus();</span>
+<span class="fc bfc" id="L24" title="All 3 branches covered.">				switch (changeStatus) {</span>
+					case ADDED:
+<span class="fc" id="L26">						listDiffEntry.addCompatibilityChange(ApiCompatibilityChange.SCHEMA_PROPERTY_REQUIRED_ADDED);</span>
+<span class="fc" id="L27">						break;</span>
+					case REMOVED:
+<span class="fc" id="L29">						listDiffEntry.addCompatibilityChange(ApiCompatibilityChange.SCHEMA_PROPERTY_REQUIRED_REMOVED);</span>
+						break;
+				}
+<span class="fc" id="L32">			}</span>
+		}
+<span class="fc" id="L34">	}</span>
+
+	private static void checkProperties(ObjectDiff schemaDiff) {
+<span class="fc" id="L37">		MapDiff propertiesDiff = schemaDiff.getMapDiffs().get(&quot;properties&quot;);</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">		if (propertiesDiff != null) {</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">			for (Map.Entry&lt;String, MapDiff.MapDiffEntry&gt; mapEntry : propertiesDiff.getMapDiffEntries().entrySet()) {</span>
+<span class="fc" id="L40">				MapDiff.MapDiffEntry mapDiffEntry = mapEntry.getValue();</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">				if (mapDiffEntry.getChangeStatus() == ChangeStatus.ADDED) {</span>
+<span class="fc" id="L42">					mapDiffEntry.addCompatibilityChange(ApiCompatibilityChange.SCHEMA_PROPERTY_ADDED);</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">				} else if (mapDiffEntry.getChangeStatus() == ChangeStatus.REMOVED) {</span>
+<span class="fc" id="L44">					mapDiffEntry.addCompatibilityChange(ApiCompatibilityChange.SCHEMA_PROPERTY_REMOVED);</span>
+				} else {
+<span class="fc" id="L46">					check(mapDiffEntry.getObjectDiff());</span>
+				}
+<span class="fc" id="L48">			}</span>
+		}
+<span class="fc" id="L50">	}</span>
+
+	private static void checkType(ObjectDiff schemaDiff) {
+<span class="fc" id="L53">		StringDiff typeDiff = schemaDiff.getStringDiffs().get(&quot;type&quot;);</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">		if (typeDiff != null) {</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">			if (typeDiff.getChangeStatus() == ChangeStatus.CHANGED) {</span>
+<span class="nc" id="L56">				typeDiff.addCompatibilityChange(ApiCompatibilityChange.SCHEMA_TYPE_CHANGED);</span>
+			}
+		}
+<span class="fc" id="L59">	}</span>
+
+	private static void checkMinLength(ObjectDiff schemaDiff) {
+<span class="fc" id="L62">		IntegerDiff minLengthDiff = schemaDiff.getIntegerDiffs().get(&quot;minLength&quot;);</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">		if (minLengthDiff != null) {</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">			if (minLengthDiff.getChangeStatus() == ChangeStatus.CHANGED) {</span>
+<span class="fc" id="L65">				Integer newValue = minLengthDiff.getNewValue();</span>
+<span class="fc" id="L66">				Integer oldValue = minLengthDiff.getOldValue();</span>
+<span class="pc bpc" id="L67" title="2 of 4 branches missed.">				if (newValue != null &amp;&amp; oldValue != null) {</span>
+<span class="fc" id="L68">					int comparisonResult = newValue.compareTo(oldValue);</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">					if (comparisonResult &gt; 0) {</span>
+<span class="fc" id="L70">						minLengthDiff.addCompatibilityChange(ApiCompatibilityChange.SCHEMA_MIN_LENGTH_INCREASED);</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">					} else if (comparisonResult &lt; 0) {</span>
+<span class="fc" id="L72">						minLengthDiff.addCompatibilityChange(ApiCompatibilityChange.SCHEMA_MIN_LENGTH_DECREASED);</span>
+					}
+				}
+			}
+		}
+<span class="fc" id="L77">	}</span>
+
+	private static void checkMaxLength(ObjectDiff schemaDiff) {
+<span class="fc" id="L80">		IntegerDiff maxLengthDiff = schemaDiff.getIntegerDiffs().get(&quot;maxLength&quot;);</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">		if (maxLengthDiff != null) {</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">			if (maxLengthDiff.getChangeStatus() == ChangeStatus.CHANGED) {</span>
+<span class="nc" id="L83">				Integer newValue = maxLengthDiff.getNewValue();</span>
+<span class="nc" id="L84">				Integer oldValue = maxLengthDiff.getOldValue();</span>
+<span class="nc bnc" id="L85" title="All 4 branches missed.">				if (newValue != null &amp;&amp; oldValue != null) {</span>
+<span class="nc" id="L86">					int comparisonResult = newValue.compareTo(oldValue);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">					if (comparisonResult &gt; 0) {</span>
+<span class="nc" id="L88">						maxLengthDiff.addCompatibilityChange(ApiCompatibilityChange.SCHEMA_MAX_LENGTH_INCREASED);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">					} else if (comparisonResult &lt; 0) {</span>
+<span class="nc" id="L90">						maxLengthDiff.addCompatibilityChange(ApiCompatibilityChange.SCHEMA_MAX_LENGTH_DECREASED);</span>
+					}
+				}
+			}
+		}
+<span class="fc" id="L95">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

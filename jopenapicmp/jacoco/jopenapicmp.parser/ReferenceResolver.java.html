@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReferenceResolver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.siom79.jopenapicmp:jopenapicmp</a> &gt; <a href="index.source.html" class="el_package">jopenapicmp.parser</a> &gt; <span class="el_source">ReferenceResolver.java</span></div><h1>ReferenceResolver.java</h1><pre class="source lang-java linenums">package jopenapicmp.parser;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import jopenapicmp.JAsyncApiCmpUserException;
+
+import java.util.*;
+import java.util.logging.Logger;
+
+<span class="fc" id="L10">public class ReferenceResolver {</span>
+<span class="fc" id="L11">	private static final Logger LOGGER = Logger.getLogger(ReferenceResolver.class.getName());</span>
+	public static final String PATH_SEPARATOR = &quot;/&quot;;
+<span class="fc" id="L13">    Map&lt;String, String&gt; resolvedPaths = new HashMap&lt;&gt;();</span>
+
+    public JsonNode resolveRefs(JsonNode jsonNode) {
+<span class="fc" id="L16">        return resolveRefsRecursive(jsonNode, jsonNode, &quot;&quot;, new ArrayList&lt;&gt;());</span>
+    }
+
+    private JsonNode resolveRefsRecursive(JsonNode rootNode, JsonNode jsonNode, String path, List&lt;JsonNode&gt; visited) {
+<span class="fc bfc" id="L20" title="All 4 branches covered.">		if (visited.stream().anyMatch(v -&gt; v == jsonNode)) {</span>
+<span class="fc" id="L21">			throw new JAsyncApiCmpUserException(&quot;Recursion detected: &quot; + jsonNode);</span>
+		}
+<span class="fc" id="L23">        Iterator&lt;Map.Entry&lt;String, JsonNode&gt;&gt; fields = jsonNode.fields();</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">        while (fields.hasNext()) {</span>
+<span class="fc" id="L25">            Map.Entry&lt;String, JsonNode&gt; entry = fields.next();</span>
+<span class="fc" id="L26">            String fieldName = entry.getKey();</span>
+<span class="fc" id="L27">            JsonNode fieldValue = entry.getValue();</span>
+<span class="fc" id="L28">            String newPath = path + PATH_SEPARATOR + fieldName;</span>
+<span class="pc bpc" id="L29" title="1 of 4 branches missed.">            if (&quot;$ref&quot;.equals(fieldName) &amp;&amp; fieldValue.isTextual()) {</span>
+<span class="fc" id="L30">                String jsonPtrExpr = fieldValue.textValue();</span>
+<span class="fc" id="L31">				String jsonPath = removeHash(jsonPtrExpr);</span>
+<span class="fc" id="L32">				JsonNode resolved = rootNode.at(jsonPath);</span>
+<span class="fc" id="L33">				LOGGER.fine(&quot;Resolved &quot; + jsonPtrExpr + &quot;: &quot; + resolved);</span>
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">                if (resolved.isMissingNode()) {</span>
+<span class="nc" id="L35">                    throw new JAsyncApiCmpUserException(&quot;Unresolvable reference: &quot; + jsonPtrExpr);</span>
+                }
+<span class="fc" id="L37">                resolveRefsRecursive(rootNode, resolved, jsonPath, copyAndAdd(visited, jsonNode));</span>
+<span class="fc" id="L38">                incorporateResolved(jsonNode, resolved);</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">            } else if (!resolvedPaths.containsKey(newPath)) {</span>
+<span class="fc" id="L40">                resolveRefsRecursive(rootNode, fieldValue, newPath, copyAndAdd(visited, jsonNode));</span>
+<span class="fc" id="L41">                resolvedPaths.put(newPath, newPath);</span>
+            }
+<span class="fc" id="L43">        }</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (jsonNode.isArray()) {</span>
+<span class="fc" id="L45">            Iterator&lt;JsonNode&gt; elements = jsonNode.elements();</span>
+<span class="fc" id="L46">            int count = 0;</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">            while(elements.hasNext()) {</span>
+<span class="fc" id="L48">                JsonNode nextNode = elements.next();</span>
+<span class="fc" id="L49">                String newPath = path + PATH_SEPARATOR + count;</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">                if (!resolvedPaths.containsKey(newPath)) {</span>
+<span class="fc" id="L51">                    resolveRefsRecursive(rootNode, nextNode, newPath, copyAndAdd(visited, jsonNode));</span>
+<span class="fc" id="L52">                    resolvedPaths.put(newPath, newPath);</span>
+                }
+<span class="fc" id="L54">                count++;</span>
+<span class="fc" id="L55">            }</span>
+        }
+<span class="fc" id="L57">        return rootNode;</span>
+    }
+
+	private List&lt;JsonNode&gt; copyAndAdd(List&lt;JsonNode&gt; nodes, JsonNode newNode) {
+<span class="fc" id="L61">		List&lt;JsonNode&gt; copy = new ArrayList&lt;&gt;(nodes);</span>
+<span class="fc" id="L62">		copy.add(newNode);</span>
+<span class="fc" id="L63">		return copy;</span>
+	}
+
+	private static String removeHash(String jsonPtrExpr) {
+<span class="fc" id="L67">		int indexSeparator = jsonPtrExpr.indexOf('#');</span>
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">		if (indexSeparator &gt;= 0) {</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">			if (jsonPtrExpr.length() &gt;= (indexSeparator + 2)) {</span>
+<span class="fc" id="L70">				jsonPtrExpr = jsonPtrExpr.substring(indexSeparator + 1);</span>
+			} else {
+<span class="nc" id="L72">				throw new JAsyncApiCmpUserException(&quot;Reference too short: &quot; + jsonPtrExpr);</span>
+			}
+		}
+<span class="fc" id="L75">		return jsonPtrExpr;</span>
+	}
+
+	private void incorporateResolved(JsonNode jsonNode, JsonNode resolved) {
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (resolved.isObject()) {</span>
+<span class="fc" id="L80">            ObjectNode objectNode = (ObjectNode) jsonNode;</span>
+<span class="fc" id="L81">            Iterator&lt;Map.Entry&lt;String, JsonNode&gt;&gt; fields = resolved.fields();</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">            while (fields.hasNext()) {</span>
+<span class="fc" id="L83">                Map.Entry&lt;String, JsonNode&gt; entry = fields.next();</span>
+<span class="fc" id="L84">                objectNode.set(entry.getKey(), entry.getValue());</span>
+<span class="fc" id="L85">            }</span>
+        }
+<span class="fc" id="L87">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

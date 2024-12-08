@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StdoutOutputSink.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.siom79.jopenapicmp:jopenapicmp</a> &gt; <a href="index.source.html" class="el_package">jopenapicmp.output</a> &gt; <span class="el_source">StdoutOutputSink.java</span></div><h1>StdoutOutputSink.java</h1><pre class="source lang-java linenums">package jopenapicmp.output;
+
+import jopenapicmp.JAsyncApiCmpTechnicalException;
+import jopenapicmp.cmp.ChangeStatus;
+import jopenapicmp.cmp.compat.HasCompatibilityChanges;
+
+import java.util.stream.Collectors;
+
+public class StdoutOutputSink implements OutputSink {
+	private final StringBuilder sb;
+
+<span class="fc" id="L12">	public StdoutOutputSink() {</span>
+<span class="fc" id="L13">		this.sb = new StringBuilder();</span>
+<span class="fc" id="L14">	}</span>
+
+	@Override
+	public String toString() {
+<span class="fc" id="L18">		return sb.toString();</span>
+	}
+
+	@Override
+	public void stringDiff(Indent indent, String key, String oldValue, String newValue, ChangeStatus changeStatus, HasCompatibilityChanges hasCompatibilityChanges) {
+<span class="fc" id="L23">		sb.append(indent(indent)).append(key).append(&quot;: &quot;);</span>
+<span class="pc bpc" id="L24" title="1 of 4 branches missed.">		switch (changeStatus) {</span>
+			case UNCHANGED:
+			case REMOVED:
+<span class="fc" id="L27">				sb.append(oldValue).append(changeStatus(changeStatus, hasCompatibilityChanges));</span>
+<span class="fc" id="L28">				break;</span>
+			case ADDED:
+<span class="fc" id="L30">				sb.append(newValue).append(changeStatus(changeStatus, hasCompatibilityChanges));</span>
+<span class="fc" id="L31">				break;</span>
+			case CHANGED:
+<span class="fc" id="L33">				sb.append(newValue).append(changeStatus(changeStatus, oldValue, hasCompatibilityChanges));</span>
+				break;
+		}
+<span class="fc" id="L36">		sb.append(&quot;\n&quot;);</span>
+<span class="fc" id="L37">	}</span>
+
+	@Override
+	public void stringDiff(Indent indent, String name, String value, ChangeStatus changeStatus, HasCompatibilityChanges hasCompatibilityChanges) {
+<span class="fc" id="L41">		sb.append(indent(indent)).append(name).append(&quot;: &quot;).append(value).append(changeStatus(changeStatus, hasCompatibilityChanges)).append(&quot;\n&quot;);</span>
+<span class="fc" id="L42">	}</span>
+
+	@Override
+	public void integerDiff(Indent indent, String key, Integer oldValue, Integer newValue, ChangeStatus changeStatus, HasCompatibilityChanges hasCompatibilityChanges) {
+<span class="nc" id="L46">		sb.append(indent(indent)).append(key).append(&quot;: &quot;);</span>
+<span class="nc bnc" id="L47" title="All 4 branches missed.">		switch (changeStatus) {</span>
+			case UNCHANGED:
+			case REMOVED:
+<span class="nc" id="L50">				sb.append(oldValue).append(changeStatus(changeStatus, hasCompatibilityChanges));</span>
+<span class="nc" id="L51">				break;</span>
+			case ADDED:
+<span class="nc" id="L53">				sb.append(newValue).append(changeStatus(changeStatus, hasCompatibilityChanges));</span>
+<span class="nc" id="L54">				break;</span>
+			case CHANGED:
+<span class="nc" id="L56">				sb.append(newValue).append(changeStatus(changeStatus, oldValue, hasCompatibilityChanges));</span>
+				break;
+		}
+<span class="nc" id="L59">		sb.append(&quot;\n&quot;);</span>
+<span class="nc" id="L60">	}</span>
+
+	@Override
+	public void mapDiffStart(Indent indent, String key, ChangeStatus changeStatus) {
+<span class="fc" id="L64">		sb.append(indent(indent)).append(key).append(&quot;:&quot;).append(changeStatus(changeStatus, null)).append(&quot;\n&quot;);</span>
+<span class="fc" id="L65">	}</span>
+
+	@Override
+	public void mapDiffEntry(Indent indent, String key, ChangeStatus changeStatus, HasCompatibilityChanges hasCompatibilityChanges) {
+<span class="fc" id="L69">		sb.append(indent(indent)).append(key).append(&quot;:&quot;).append(changeStatus(changeStatus, hasCompatibilityChanges)).append(&quot;\n&quot;);</span>
+<span class="fc" id="L70">	}</span>
+
+	@Override
+	public void listDiffStart(Indent indent, String key, ChangeStatus changeStatus) {
+<span class="fc" id="L74">		sb.append(indent(indent)).append(key).append(&quot;:&quot;).append(changeStatus(changeStatus, null)).append(&quot;\n&quot;);</span>
+<span class="fc" id="L75">	}</span>
+
+	@Override
+	public void listDiffEntryString(Indent indent, Object s, ChangeStatus changeStatus, HasCompatibilityChanges hasCompatibilityChanges) {
+<span class="fc" id="L79">		sb.append(indent(indent)).append(&quot;- &quot;).append(s).append(changeStatus(changeStatus, hasCompatibilityChanges)).append(&quot;\n&quot;);</span>
+<span class="fc" id="L80">	}</span>
+
+	@Override
+	public void listDiffEntryMap(Indent indent) {
+<span class="nc" id="L84">		sb.append(indent(indent)).append(&quot;- &quot;);</span>
+<span class="nc" id="L85">	}</span>
+
+	@Override
+	public void listDiffModelStart(Indent indent) {
+<span class="fc" id="L89">		sb.append(indent(indent)).append(&quot;- &quot;);</span>
+<span class="fc" id="L90">	}</span>
+
+	@Override
+	public void objectDiffStart(Indent indent, String key, ChangeStatus changeStatus) {
+<span class="fc" id="L94">		sb.append(indent(indent)).append(key).append(&quot;:&quot;).append(changeStatus(changeStatus, null)).append(&quot;\n&quot;);</span>
+<span class="fc" id="L95">	}</span>
+
+	private String indent(Indent indent) {
+<span class="fc bfc" id="L98" title="All 2 branches covered.">		if (indent.nextTimeNoIndent) {</span>
+<span class="fc" id="L99">			indent.nextTimeNoIndent = false;</span>
+<span class="fc" id="L100">			return &quot;&quot;;</span>
+		}
+<span class="fc" id="L102">		return &quot; &quot;.repeat(indent.indent);</span>
+	}
+
+	private String changeStatus(ChangeStatus changeStatus, HasCompatibilityChanges hasCompatibilityChanges) {
+<span class="fc" id="L106">		return changeStatus(changeStatus, null, hasCompatibilityChanges);</span>
+	}
+
+	private String changeStatus(ChangeStatus changeStatus, Object oldValue, HasCompatibilityChanges hasCompatibilityChanges) {
+<span class="fc" id="L110">		boolean compatibilityChanges = false;</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">		if (hasCompatibilityChanges != null) {</span>
+<span class="fc" id="L112">			compatibilityChanges = hasCompatibilityChanges.getApiCompatibilityChanges().stream()</span>
+<span class="pc bnc" id="L113" title="All 4 branches missed.">					.anyMatch(acc -&gt; !acc.isBackwardCompatible() || !acc.isForwardCompatible());</span>
+		}
+<span class="fc" id="L115">		String retVal = &quot; # &quot;;</span>
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">		if (compatibilityChanges) {</span>
+<span class="nc" id="L117">			retVal += &quot;!&quot;;</span>
+		}
+<span class="pc bpc" id="L119" title="1 of 5 branches missed.">		switch (changeStatus) {</span>
+			case UNCHANGED:
+<span class="fc" id="L121">				retVal += &quot;===&quot;;</span>
+<span class="fc" id="L122">				break;</span>
+			case ADDED:
+<span class="fc" id="L124">				retVal += &quot;+++&quot;;</span>
+<span class="fc" id="L125">				break;</span>
+			case REMOVED:
+<span class="fc" id="L127">				retVal += &quot;---&quot;;</span>
+<span class="fc" id="L128">				break;</span>
+			case CHANGED:
+<span class="fc" id="L130">				retVal += &quot;***&quot;;</span>
+<span class="fc" id="L131">				break;</span>
+			default:
+<span class="nc" id="L133">				throw new JAsyncApiCmpTechnicalException(&quot;Unkonwn value: &quot; + changeStatus);</span>
+		}
+<span class="fc bfc" id="L135" title="All 2 branches covered.">		if (oldValue != null) {</span>
+<span class="fc" id="L136">			retVal += &quot; old: &quot; + oldValue;</span>
+		}
+<span class="pc bpc" id="L138" title="1 of 4 branches missed.">		if (hasCompatibilityChanges != null &amp;&amp; !hasCompatibilityChanges.getApiCompatibilityChanges().isEmpty()) {</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">			retVal += &quot;, compatibility change&quot; + (hasCompatibilityChanges.getApiCompatibilityChanges().size() &gt; 1 ? &quot;s&quot; : &quot;&quot;) + &quot;: &quot;;</span>
+<span class="nc" id="L140">			retVal += hasCompatibilityChanges.getApiCompatibilityChanges().stream().map(Enum::name).collect(Collectors.joining(&quot;,&quot;));</span>
+		}
+<span class="fc" id="L142">		return retVal;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

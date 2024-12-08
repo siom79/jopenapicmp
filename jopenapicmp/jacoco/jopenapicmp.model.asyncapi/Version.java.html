@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Version.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.siom79.jopenapicmp:jopenapicmp</a> &gt; <a href="index.source.html" class="el_package">jopenapicmp.model.asyncapi</a> &gt; <span class="el_source">Version.java</span></div><h1>Version.java</h1><pre class="source lang-java linenums">package jopenapicmp.model.asyncapi;
+
+import jopenapicmp.JAsyncApiCmpUserException;
+
+public @interface Version {
+<span class="nc" id="L6">    enum Versions {</span>
+<span class="nc" id="L7">        NA(&quot;&quot;),</span>
+<span class="nc" id="L8">        V2_6_0(&quot;2.6.0&quot;),</span>
+<span class="nc" id="L9">        V3_0_0(&quot;3.0.0&quot;);</span>
+
+        final String versionString;
+<span class="nc" id="L12">        Versions(String version) {</span>
+<span class="nc" id="L13">            this.versionString = version;</span>
+<span class="nc" id="L14">        }</span>
+
+        public Versions from(String s) {
+<span class="nc bnc" id="L17" title="All 2 branches missed.">            for (Versions versions : Versions.values()) {</span>
+<span class="nc bnc" id="L18" title="All 2 branches missed.">                if (versions.versionString.equals(s)) {</span>
+<span class="nc" id="L19">                    return versions;</span>
+                }
+            }
+<span class="nc" id="L22">            throw new JAsyncApiCmpUserException(&quot;Unknown version string: &quot; + s);</span>
+        }
+    }
+
+    Versions until() default Versions.NA;
+    Versions since() default Versions.NA;
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

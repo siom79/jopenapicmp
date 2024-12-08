@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApiCompatibilityChange.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.siom79.jopenapicmp:jopenapicmp</a> &gt; <a href="index.source.html" class="el_package">jopenapicmp.cmp</a> &gt; <span class="el_source">ApiCompatibilityChange.java</span></div><h1>ApiCompatibilityChange.java</h1><pre class="source lang-java linenums">package jopenapicmp.cmp;
+
+/**
+ * BACKWARD compatibility means that consumers using the new schema can read data produced with the last schema.
+ * FORWARD compatibility means that data produced with a new schema can be read by consumers using the last schema,
+ * even though they may not be able to use the full capabilities of the new schema.
+ * FULL compatibility means schemas are both backward and forward compatible.
+ * (see also &lt;a href=&quot;https://docs.confluent.io/platform/current/schema-registry/fundamentals/schema-evolution.html&quot;&gt;here&lt;/a&gt;)
+ */
+<span class="fc" id="L10">public enum ApiCompatibilityChange {</span>
+<span class="fc" id="L11">	CHANNEL_ADDED(true, true),</span>
+<span class="fc" id="L12">	CHANNEL_REMOVED(false, false),</span>
+<span class="fc" id="L13">	OPERATION_OPERATION_ID_CHANGED(false, false),</span>
+<span class="fc" id="L14">	MESSAGE_MESSAGE_ID_CHANGED(false, false),</span>
+<span class="fc" id="L15">	MESSAGE_CONTENT_TYPE_CHANGED(false, false),</span>
+<span class="fc" id="L16">	MESSAGE_SCHEMA_FORMAT_CHANGED(false, false),</span>
+<span class="fc" id="L17">	SCHEMA_TYPE_CHANGED(false, false),</span>
+<span class="fc" id="L18">	SCHEMA_PROPERTY_ADDED(true, true),</span>
+<span class="fc" id="L19">	SCHEMA_PROPERTY_REMOVED(true, true),</span>
+<span class="fc" id="L20">	SCHEMA_PROPERTY_REQUIRED_ADDED(false, true),</span>
+<span class="fc" id="L21">	SCHEMA_PROPERTY_REQUIRED_REMOVED(true, false),</span>
+<span class="fc" id="L22">	SCHEMA_MIN_LENGTH_INCREASED(false, true),</span>
+<span class="fc" id="L23">	SCHEMA_MIN_LENGTH_DECREASED(true, false),</span>
+<span class="fc" id="L24">	SCHEMA_MAX_LENGTH_INCREASED(true, false),</span>
+<span class="fc" id="L25">	SCHEMA_MAX_LENGTH_DECREASED(false, true);</span>
+
+	private final boolean backwardCompatible;
+	private final boolean forwardCompatible;
+
+<span class="fc" id="L30">	ApiCompatibilityChange(boolean backwardCompatible, boolean forwardCompatible) {</span>
+<span class="fc" id="L31">		this.backwardCompatible = backwardCompatible;</span>
+<span class="fc" id="L32">		this.forwardCompatible = forwardCompatible;</span>
+<span class="fc" id="L33">	}</span>
+
+	public boolean isBackwardCompatible() {
+<span class="nc" id="L36">		return backwardCompatible;</span>
+	}
+
+	public boolean isForwardCompatible() {
+<span class="nc" id="L40">		return forwardCompatible;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
