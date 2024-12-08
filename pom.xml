@@ -36,6 +36,10 @@
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <github.account>siom79</github.account>
+        <github.project>jopenapicmp</github.project>
+        <github.actor>siom79</github.actor>
+        <github.token>secret</github.token>
     </properties>
 
     <build>
@@ -95,8 +99,39 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <!-- explicitly define maven-deploy-plugin after other to force exec order -->
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <executions>
+                        <execution>
+                            <id>deploy</id>
+                            <phase>deploy</phase>
+                            <goals>
+                                <goal>deploy</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-scm-publish-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <configuration>
+                        <scmBranch>gh-pages</scmBranch>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
+
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-webdav-jackrabbit</artifactId>
+                <version>3.0.0</version>
+            </extension>
+        </extensions>
     </build>
 
     <profiles>
@@ -157,8 +192,8 @@
 
     <distributionManagement>
         <site>
-            <id>jopenapicmp</id>
-            <url>file://${user.dir}/target/deploy/site</url>
+            <id>github</id>
+            <url>scm:git:https://${github.actor}:${github.token}@github.com/${github.account}/${github.project}.git</url>
         </site>
         <snapshotRepository>
             <id>ossrh</id>
@@ -171,9 +206,8 @@
     </distributionManagement>
 
     <scm>
-        <connection>scm:git:git://github.com/siom79/jopenapicmp.git</connection>
-        <developerConnection>scm:git:https://github.com/siom79/jopenapicmp.git</developerConnection>
-        <url>https://github.com/siom79/jopenapicmp/tree/master</url>
-      <tag>HEAD</tag>
-  </scm>
+        <connection>scm:git:https://github.com/${github.account}/${github.project}.git</connection>
+        <developerConnection>scm:git:https://github.com/${github.account}/${github.project}.git</developerConnection>
+        <url>https://github.com/${github.account}/${github.project}.git</url>
+    </scm>
 </project>
