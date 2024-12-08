@@ -9,7 +9,7 @@
     <version>0.0.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>jopenapicmp</name>
+    <name>jopenapicmp base</name>
     <description>jopenapicmp is a tool to compare two versions of an OpenAPI or AsyncAPI specification.</description>
     <url>https://siom79.github.io/jopenapicmp/</url>
 

@@ -9,7 +9,7 @@
 	</parent>
 
     <artifactId>jopenapicmp</artifactId>
-	<name>${project.groupId}:${project.artifactId}</name>
+	<name>jopenapicmp</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
