@@ -22,7 +22,7 @@
 
 	<body>
 		<breadcrumbs>
-			<item name="jopenapicmp" href="https://siom79.github.io/jasyncapicmp"/>
+			<item name="jopenapicmp" href="https://siom79.github.io/jopenapicmp"/>
 		</breadcrumbs>
 		<menu name="Overview">
 			<item href="index.html" name="Introduction"/>

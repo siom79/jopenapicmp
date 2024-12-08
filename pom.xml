@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -193,7 +194,8 @@
     <distributionManagement>
         <site>
             <id>github</id>
-            <url>scm:git:https://${github.actor}:${github.token}@github.com/${github.account}/${github.project}.git</url>
+            <url>scm:git:https://${github.actor}:${github.token}@github.com/${github.account}/${github.project}.git
+            </url>
         </site>
         <snapshotRepository>
             <id>ossrh</id>
@@ -210,4 +212,23 @@
         <developerConnection>scm:git:https://github.com/${github.account}/${github.project}.git</developerConnection>
         <url>https://github.com/${github.account}/${github.project}.git</url>
     </scm>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>3.4.1</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>index</report>
+                            <report>licenses</report>
+                            <report>summary</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>
