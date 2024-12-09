@@ -5,6 +5,10 @@ import jopenapicmp.util.TestUtil;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public class OpenApiStdoutYamlOutputTest {
 
 	@Test
@@ -169,5 +173,21 @@ public class OpenApiStdoutYamlOutputTest {
 			"      operationId: getPets # ===\n" +
 			"  /food: # ---\n" +
 			"      operationId: postPets # ---\n");
+	}
+
+	@Test
+	public void testOldVsNew() throws IOException {
+		StdoutOutputSink stdoutOutputTracker = new StdoutOutputSink();
+		OutputProcessor outputProcessor = new OutputProcessor(stdoutOutputTracker);
+		ObjectDiff objectDiff = TestUtil.compareOpenApiYaml(
+				Files.readString(Paths.get(System.getProperty("user.dir"), "src", "test", "resources", "openapi_new.yaml")),
+				Files.readString(Paths.get(System.getProperty("user.dir"), "src", "test", "resources", "openapi_old.yaml"))
+		);
+
+		outputProcessor.process(objectDiff);
+		String output = stdoutOutputTracker.toString();
+
+		Assertions.assertThat(output).doesNotContain("MediaType(").doesNotContain("Schema("); // do not output toString() on Model classes
+		Assertions.assertThat(output).contains("maximum: 600 # *** old: 700"); // changes on integer values
 	}
 }

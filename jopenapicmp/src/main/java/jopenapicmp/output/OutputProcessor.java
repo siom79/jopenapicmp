@@ -72,6 +72,9 @@ public class OutputProcessor {
 			for (Map.Entry<String, ListDiff> listDiffEntry : objectDiff.getListDiffs().entrySet()) {
 				printListDiff(ot, indent, listDiffEntry.getKey(), listDiffEntry.getValue());
 			}
+			for (Map.Entry<String, IntegerDiff> integerDiffEntry : objectDiff.getIntegerDiffs().entrySet()) {
+				printIntegerDiff(ot, indent, integerDiffEntry.getKey(), integerDiffEntry.getValue());
+			}
 			if (objectDiff.getChangeStatus() == ChangeStatus.ADDED) {
 				printModel(ot, indent, objectDiff.getNewValue(), objectDiff.getChangeStatus());
 			} else if (objectDiff.getChangeStatus() == ChangeStatus.REMOVED) {
@@ -174,7 +177,7 @@ public class OutputProcessor {
 								if (entryValue instanceof String) {
 									os.stringDiff(indent, entry.getKey(), (String) entryValue, changeStatus, null);
 								} else if (entryValue instanceof Model) {
-									os.stringDiff(indent, entry.getKey(), entryValue.toString(), changeStatus, null);
+									os.stringDiff(indent, entry.getKey(), "", changeStatus, null);
 									printModel(os, indent.incDefault(), (Model) entryValue, changeStatus);
 								}
 							}

@@ -136,10 +136,13 @@ components:
             required:
                 - message
                 - code
+                - description
             properties:
                 message:
                     type: string
                 code:
                     type: integer
                     minimum: 100
-                    maximum: 600
+                    maximum: 700
+                description:
+                    type: string

@@ -56,7 +56,7 @@ public class ObjectDiff implements DiffModel {
                         compareMaps(oldObj, newObj, objectDiff, field, fieldName);
                     } else if (List.class.isAssignableFrom(fieldType)) {
                         compareLists(oldObj, newObj, objectDiff, field, fieldName);
-                    } else if (int.class.isAssignableFrom(fieldType)) {
+                    } else if (Integer.class.isAssignableFrom(fieldType)) {
 						compareInteger((Model) oldObj, (Model) newObj, objectDiff, field, fieldName);
 					}
                 }
